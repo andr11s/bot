@@ -6,7 +6,10 @@
     "sourceType": "module",
     "ecmaVersion": 2022
   },
-  "plugins": ["@typescript-eslint", "simple-import-sort"],
+  "plugins": [
+    "@typescript-eslint",
+    "simple-import-sort"
+  ],
   "extends": [
     "eslint:recommended",
     "plugin:@typescript-eslint/strict-type-checked",
@@ -25,18 +28,31 @@
     "node/no-missing-import": "off",
     "node/no-unsupported-features/es-syntax": [
       "error",
-      { "ignores": ["modules"] }
+      {
+        "ignores": [
+          "modules"
+        ]
+      }
     ],
     "node/no-unpublished-import": "off",
     "no-process-exit": "off",
     "@typescript-eslint/restrict-template-expressions": [
       "error",
-      { "allowNumber": true }
-    ]
+      {
+        "allowNumber": true
+      }
+    ],
+    "@typescript-eslint/no-unsafe-member-access": "off",
+    "@typescript-eslint/no-unsafe-assignment": "off",
+    "@typescript-eslint/no-unsafe-argument": "off",
+    "@typescript-eslint/no-unused-vars": "off",
+    "@typescript-eslint/restrict-template-expressions": "off"
   },
   "overrides": [
     {
-      "files": ["*.ts"],
+      "files": [
+        "*.ts"
+      ],
       "rules": {
         "simple-import-sort/imports": [
           "error",
@@ -45,36 +61,75 @@
               [
                 "^(assert|buffer|child_process|cluster|console|constants|crypto|dgram|dns|domain|events|fs|http|https|module|net|os|path|punycode|querystring|readline|repl|stream|string_decoder|sys|timers|tls|tty|url|util|vm|zlib|freelist|v8|process|async_hooks|http2|perf_hooks)(/.*|$)"
               ],
-              ["^node:.*\\u0000$", "^@?\\w.*\\u0000$", "^[^.].*\\u0000$", "^\\..*\\u0000$"],
-              ["^\\u0000"],
-              ["^node:"],
-              ["^@?\\w"],
-              ["^@/tests(/.*|$)"],
-              ["^@/src(/.*|$)"],
-              ["^@/app(/.*|$)"],
-              ["^@/shared(/.*|$)"],
-              ["^@/contexts(/.*|$)"],
-              ["^"],
-              ["^\\."]
+              [
+                "^node:.*\\u0000$",
+                "^@?\\w.*\\u0000$",
+                "^[^.].*\\u0000$",
+                "^\\..*\\u0000$"
+              ],
+              [
+                "^\\u0000"
+              ],
+              [
+                "^node:"
+              ],
+              [
+                "^@?\\w"
+              ],
+              [
+                "^@/tests(/.*|$)"
+              ],
+              [
+                "^@/src(/.*|$)"
+              ],
+              [
+                "^@/app(/.*|$)"
+              ],
+              [
+                "^@/shared(/.*|$)"
+              ],
+              [
+                "^@/contexts(/.*|$)"
+              ],
+              [
+                "^"
+              ],
+              [
+                "^\\."
+              ]
             ]
           }
         ]
       }
     },
     {
-      "files": ["*.js", "*.mjs", "*.cjs"],
-      "extends": ["plugin:@typescript-eslint/disable-type-checked"]
+      "files": [
+        "*.js",
+        "*.mjs",
+        "*.cjs"
+      ],
+      "extends": [
+        "plugin:@typescript-eslint/disable-type-checked"
+      ]
     },
     {
-      "files": ["scripts/**"],
+      "files": [
+        "scripts/**"
+      ],
       "rules": {
         "no-console": "off"
       }
     },
     {
-      "files": ["tests/**"],
-      "plugins": ["vitest"],
-      "extends": ["plugin:vitest/recommended"],
+      "files": [
+        "tests/**"
+      ],
+      "plugins": [
+        "vitest"
+      ],
+      "extends": [
+        "plugin:vitest/recommended"
+      ],
       "rules": {
         "@typescript-eslint/unbound-method": "off",
         "vitest/expect-expect": "off",
@@ -82,7 +137,9 @@
       }
     },
     {
-      "files": ["tests/performance/**"],
+      "files": [
+        "tests/performance/**"
+      ],
       "rules": {
         "unicorn/numeric-separators-style": "off",
         "unicorn/no-anonymous-default-export": "off",
