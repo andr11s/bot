@@ -13,7 +13,7 @@ import { Logger } from "@/shared/logger/logger";
 import { userRouter } from "@/contexts/users/api/user-router";
 
 import bot from "../contexts/telegram/helpers/bot";
-import { twitchRouter } from "../contexts/twitch/api/twitch-router";
+import { twitchRouter } from "../contexts/twitch/controller/twitch-router";
 
 export class Server {
   private readonly app: Express;
