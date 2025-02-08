@@ -2,6 +2,7 @@ import http from "node:http";
 import { AddressInfo } from "node:net";
 
 import express, { Express } from "express";
+import { webhookCallback } from "grammy";
 
 import { config } from "@/app/config/config";
 import { healthRouter } from "@/app/health/api/health-router";
@@ -10,6 +11,9 @@ import { ConsoleLogger } from "@/shared/logger/console-logger";
 import { Logger } from "@/shared/logger/logger";
 
 import { userRouter } from "@/contexts/users/api/user-router";
+
+import bot from "../contexts/telegram/helpers/bot";
+import { twitchRouter } from "../contexts/twitch/api/twitch-router";
 
 export class Server {
   private readonly app: Express;
@@ -20,6 +24,15 @@ export class Server {
     this.logger = new ConsoleLogger();
     this.app = express();
     this.app.use(express.json());
+
+    this.app.use(express.urlencoded({ extended: true }));
+
+    this.app.use("/webhook", webhookCallback(bot, "express"));
+
+    // this.app.use("/api/health", createHealthRouter(this.botTelegram));
+    this.app.use("/api/users", userRouter);
+    this.app.use("/api/twitch", twitchRouter);
+
     this.app.use("/api/health", healthRouter);
     this.app.use("/api/users", userRouter);
   }
