@@ -7,14 +7,16 @@ import { config } from "@/src/app/config/config";
 
 import { Logger } from "@/shared/logger/logger";
 
-import bot from "../../telegram/helpers/bot";
 import { sendMessageCommand } from "../../telegram/shared/message";
+import { BotManager } from "../../telegram/helpers/bot";
 
 export class TwitchController {
   private readonly logger;
+  private bot: BotManager;
 
-  constructor(dependencies: { logger: Logger }) {
+  constructor(dependencies: { logger: Logger }, botManager: BotManager) {
     this.logger = dependencies.logger;
+    this.bot = botManager;
   }
 
   run(req: Request, res: Response) {
@@ -41,7 +43,7 @@ export class TwitchController {
       eventType === "notification" &&
       req.body.subscription.type === "stream.online"
     ) {
-      const botMessage = new sendMessageCommand(bot);
+      const botMessage = new sendMessageCommand(this.bot.getBot());
 
       const eventData = req.body.event;
 

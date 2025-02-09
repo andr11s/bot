@@ -1,18 +1,21 @@
-import express from "express";
+import express, { Router } from "express";
 
 import { ConsoleLogger } from "@/shared/logger/console-logger";
 
 import { TwitchController } from "./twitch-controller";
+import { BotManager } from "../../telegram/helpers/bot";
 
-const twitchRouter = express.Router();
+function createTwitchRouter(logger: ConsoleLogger, bot: BotManager) {
+  const router = Router();
+  const twitchController = new TwitchController({ logger }, bot);
 
-const logger = new ConsoleLogger();
-const twichController = new TwitchController({ logger });
+  router.get("/", twitchController.run.bind(twitchController));
+  router.post(
+    "/eventsubcallback",
+    twitchController.validate.bind(twitchController),
+  );
 
-twitchRouter.get("/", twichController.run.bind(twichController));
-twitchRouter.post(
-  "/eventsubcallback",
-  twichController.validate.bind(twichController),
-);
+  return router;
+}
 
-export { twitchRouter };
+export { createTwitchRouter };

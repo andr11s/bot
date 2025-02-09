@@ -4,7 +4,7 @@ import { Command } from "../types/command.type";
 import { getAllSubscriptions } from "@/src/contexts/twitch/lib/get-All-Subscriptions";
 
 export const getSubscriptions: Command = {
-  command: "allSubscriptions",
+  command: "allSubscriptionsX",
   description: "Retorna la lista de suscripciones de Twitch",
   handler: async (ctx: Context) => {
     console.log("📡 Obteniendo suscripciones...");
