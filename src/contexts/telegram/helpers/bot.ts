@@ -1,33 +1,47 @@
 import { Bot, Context } from "grammy";
+import { Command } from "../shared/types/command.type";
 
-import { commands } from "../shared/commands";
-import { configApp } from "./env";
+export class BotManager {
+  private bot: Bot<Context>;
+  private commands: any[]; // Define el tipo correcto para tus comandos
 
-const bot = new Bot<Context>(configApp.server.BOT_TOKEN ?? "", {
-  ContextConstructor: Context,
-});
-
-await bot.init();
-const groupIds = new Set<number>();
-
-bot.use(async (ctx, next) => {
-  // agrega log de la informacion del ctx
-  console.log("nuevo evento", ctx.update);
-
-  if (
-    ctx.chat &&
-    (ctx.chat.type === "supergroup" || ctx.chat.type === "group")
-  ) {
-    groupIds.add(ctx.chat.id);
-    console.log("📌 El bot está en estos grupos:", [...groupIds]);
+  constructor(token: string) {
+    this.bot = new Bot<Context>(token, {
+      ContextConstructor: Context,
+    });
+    this.commands = [];
   }
-  await next();
-});
 
-for (const cmd of commands) {
-  console.log("🤖 Comando registrado:", cmd.command);
+  public async initialize(): Promise<void> {
+    await this.bot.init();
 
-  bot.command(cmd.command, cmd.handler);
+    this.bot.use(async (ctx, next) => {
+      console.log("nuevo evento", ctx.update);
+
+      if (
+        ctx.chat &&
+        (ctx.chat.type === "supergroup" || ctx.chat.type === "group")
+      ) {
+        // ... (código para registrar grupos)
+      }
+      await next();
+    });
+  }
+
+  public loadCommands(commands: Command[]): void {
+    for (const cmd of commands) {
+      console.log("🤖 Comando registrado:", cmd.command);
+
+      this.bot.command(cmd.command, cmd.handler);
+    }
+  }
+
+  public start(): void {
+    this.bot.start();
+  }
+
+  public getBot(): Bot<Context> {
+    // Opcional: Para acceder a la instancia del bot desde fuera
+    return this.bot;
+  }
 }
-
-export default bot;

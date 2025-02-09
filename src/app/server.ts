@@ -12,13 +12,19 @@ import { Logger } from "@/shared/logger/logger";
 
 import { userRouter } from "@/contexts/users/api/user-router";
 
-import bot from "../contexts/telegram/helpers/bot";
-import { twitchRouter } from "../contexts/twitch/controller/twitch-router";
+import { BotManager } from "../contexts/telegram/helpers/bot";
+import { createTwitchRouter } from "../contexts/twitch/controller/twitch-router";
+import { UserService } from "../contexts/users/services/user.service";
+import { Twitch } from "../contexts/telegram/shared/commands/twitch/twitch";
+import { Command } from "../contexts/telegram/shared/types/command.type";
+import { startCommand } from "../contexts/telegram/shared/commands/start.command";
+import { saludameCommand } from "../contexts/telegram/shared/commands/saludame.command";
 
 export class Server {
   private readonly app: Express;
   private httpServer?: http.Server;
   private readonly logger: Logger;
+  private bot: BotManager;
 
   constructor() {
     this.logger = new ConsoleLogger();
@@ -27,10 +33,35 @@ export class Server {
 
     this.app.use(express.urlencoded({ extended: true }));
 
-    this.app.use("/webhook", webhookCallback(bot, "express"));
+    const userService = new UserService("users");
+    userService.init().then(c => {
+      userService.createUserTable();
+    });
+
+    const twitch = new Twitch(userService);
+    const getSubscriptionsCommand = twitch.getSubscriptionsCommand();
+    const getStatusLiveStream = twitch.getStatusLiveStream();
+    const deleteSubscription = twitch.deleteSubscription();
+    const addSubscriptions = twitch.addSubscriptions();
+
+    const commands: Command[] = [
+      startCommand,
+      saludameCommand,
+      getSubscriptionsCommand,
+      getStatusLiveStream,
+      deleteSubscription,
+      addSubscriptions,
+    ];
+
+    this.bot = new BotManager(config.server.BOT_TOKEN ?? "");
+    this.bot.initialize();
+    this.bot.loadCommands(commands);
+    this.app.use("/webhook", webhookCallback(this.bot.getBot(), "express"));
 
     // this.app.use("/api/health", createHealthRouter(this.botTelegram));
     this.app.use("/api/users", userRouter);
+
+    const twitchRouter = createTwitchRouter(this.logger, this.bot);
     this.app.use("/api/twitch", twitchRouter);
 
     this.app.use("/api/health", healthRouter);
