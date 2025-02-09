@@ -19,6 +19,8 @@ import { Twitch } from "../contexts/telegram/shared/commands/twitch/twitch";
 import { Command } from "../contexts/telegram/shared/types/command.type";
 import { startCommand } from "../contexts/telegram/shared/commands/start.command";
 import { saludameCommand } from "../contexts/telegram/shared/commands/saludame.command";
+import { GroupsService } from "../contexts/groups/services/groups.service";
+import { Telegram } from "../contexts/telegram/shared/commands/telegram/telegram";
 
 export class Server {
   private readonly app: Express;
@@ -34,6 +36,7 @@ export class Server {
     this.app.use(express.urlencoded({ extended: true }));
 
     const userService = new UserService("users");
+
     userService.init().then(c => {
       userService.createUserTable();
     });
@@ -44,6 +47,15 @@ export class Server {
     const deleteSubscription = twitch.deleteSubscription();
     const addSubscriptions = twitch.addSubscriptions();
 
+    const groupService = new GroupsService("groups");
+
+    groupService.init().then(c => {
+      groupService.createGroupsTable();
+    });
+
+    const telegram = new Telegram(groupService);
+    const notifyStreamCommand = telegram.notifyStreamCommand();
+
     const commands: Command[] = [
       startCommand,
       saludameCommand,
@@ -51,6 +63,7 @@ export class Server {
       getStatusLiveStream,
       deleteSubscription,
       addSubscriptions,
+      notifyStreamCommand,
     ];
 
     this.bot = new BotManager(config.server.BOT_TOKEN ?? "");
@@ -61,7 +74,11 @@ export class Server {
     // this.app.use("/api/health", createHealthRouter(this.botTelegram));
     this.app.use("/api/users", userRouter);
 
-    const twitchRouter = createTwitchRouter(this.logger, this.bot);
+    const twitchRouter = createTwitchRouter(
+      this.logger,
+      this.bot,
+      groupService,
+    );
     this.app.use("/api/twitch", twitchRouter);
 
     this.app.use("/api/health", healthRouter);

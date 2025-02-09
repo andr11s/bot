@@ -4,10 +4,15 @@ import { ConsoleLogger } from "@/shared/logger/console-logger";
 
 import { TwitchController } from "./twitch-controller";
 import { BotManager } from "../../telegram/helpers/bot";
+import { GroupsService } from "../../groups/services/groups.service";
 
-function createTwitchRouter(logger: ConsoleLogger, bot: BotManager) {
+function createTwitchRouter(
+  logger: ConsoleLogger,
+  bot: BotManager,
+  group: GroupsService,
+) {
   const router = Router();
-  const twitchController = new TwitchController({ logger }, bot);
+  const twitchController = new TwitchController({ logger }, bot, group);
 
   router.get("/", twitchController.run.bind(twitchController));
   router.post(

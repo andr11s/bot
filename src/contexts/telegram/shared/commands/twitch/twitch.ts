@@ -164,7 +164,6 @@ export class Twitch {
             await ctx.reply("❌ Debes proporcionar un Channel ID válido.");
             return;
           }
-          console.log("llego");
 
           const existChannelId = await this.userService.getByDynamicQuery(
             "channelId",
