@@ -9,14 +9,20 @@ import { Logger } from "@/shared/logger/logger";
 
 import { sendMessageCommand } from "../../telegram/shared/message";
 import { BotManager } from "../../telegram/helpers/bot";
+import { GroupsService } from "../../groups/services/groups.service";
 
 export class TwitchController {
   private readonly logger;
   private bot: BotManager;
-
-  constructor(dependencies: { logger: Logger }, botManager: BotManager) {
+  private groupsService: GroupsService;
+  constructor(
+    dependencies: { logger: Logger },
+    botManager: BotManager,
+    groupsService: GroupsService,
+  ) {
     this.logger = dependencies.logger;
     this.bot = botManager;
+    this.groupsService = groupsService;
   }
 
   run(req: Request, res: Response) {
@@ -24,7 +30,7 @@ export class TwitchController {
     res.status(StatusCodes.OK).send({ twitch: "ok" });
   }
 
-  validate(req: any, res: any) {
+  async validate(req: any, res: any) {
     this.logger.info("verifying twitch signature");
 
     const eventType = req.headers["twitch-eventsub-message-type"];
@@ -52,11 +58,15 @@ export class TwitchController {
         `📅 Fecha: ${new Date(eventData.started_at).toLocaleString("es-ES")}\n` +
         `🔗 Mira el stream aquí: https://twitch.tv/${eventData.broadcaster_user_login}`;
 
-      botMessage
-        .execute(-1_002_377_899_509, messageText)
-        .catch((error: unknown) => {
-          console.log("error al enviar message");
-        });
+      const groups = await this.groupsService.getGroups();
+
+      for (const element of groups) {
+        await botMessage
+          .execute(element.channelId, messageText)
+          .catch((error: unknown) => {
+            console.log("error al enviar message");
+          });
+      }
     }
 
     this.logger.info("Received request to post");
