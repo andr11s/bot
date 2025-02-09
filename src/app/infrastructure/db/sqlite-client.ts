@@ -5,7 +5,8 @@ import fs from "fs";
 import { fileURLToPath } from "url";
 
 export class SQLite {
-  private static instance: SQLite;
+  private static instances: Map<string, SQLite> = new Map<string, SQLite>();
+
   private dbPath: string;
   private db!: Database;
 
@@ -28,11 +29,13 @@ export class SQLite {
 
   // Método para obtener una instancia única
   public static async getInstance(dbName: string): Promise<SQLite> {
-    if (!SQLite.instance) {
-      SQLite.instance = new SQLite(dbName);
-      await SQLite.instance.connect();
+    // Use a Map to store instances, keyed by dbName
+    if (!SQLite.instances.has(dbName)) {
+      const instance = new SQLite(dbName);
+      await instance.connect();
+      SQLite.instances.set(dbName, instance);
     }
-    return SQLite.instance;
+    return SQLite.instances.get(dbName)!; // Non-null assertion as we just checked
   }
 
   private async connect() {

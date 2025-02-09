@@ -23,7 +23,6 @@ export class SQLiteService {
     await this.ensureDbInitialized();
     const query = `CREATE TABLE IF NOT EXISTS ${tableName} (${schema})`;
     await this.db.exec(query);
-    console.log(`✔️ Tabla '${tableName}' creada o ya existe.`);
   }
 
   /** 📌 Método genérico para insertar datos en una tabla */
